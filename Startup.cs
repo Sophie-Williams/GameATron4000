@@ -72,10 +72,10 @@ namespace GameATron4000
             services.AddBot<GameBot>(options =>
             {
                 // Retrieve current endpoint.
-                var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint" && s.Name == _environmentName);
+                var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint");
                 if (!(service is EndpointService endpointService))
                 {
-                    throw new InvalidOperationException($"The .bot file does not contain an endpoint with name '{_environmentName}'.");
+                    throw new InvalidOperationException($"The .bot file does not contain an endpoint.");
                 }
 
                 options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
