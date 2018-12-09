@@ -1,4 +1,6 @@
-# Prerequisites
+# Hands-on Labs
+
+## Prerequisites
 
 Ensure that the following tools are installed on your machine:
 
@@ -16,6 +18,6 @@ az login
 
 Alternatively, you can use the Cloud Shell in the Azure portal.
 
-# The Three Trials
+## The Three Trials
 
 1. [Test the Game-A-Tron 4000™ bot locally](docs/trial1.md)
