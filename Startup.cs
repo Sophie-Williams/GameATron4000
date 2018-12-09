@@ -54,16 +54,21 @@ namespace GameATron4000
             services.Configure<GuiOptions>(Configuration.GetSection("GUI"));
             services.Configure<LUISOptions>(Configuration.GetSection("LUIS"));
 
-            var botConfigKey = Configuration.GetValue<string>("Bot:FileSecret");
             var botConfigPath = Configuration.GetValue<string>("Bot:FilePath");
-            if (!File.Exists(botConfigPath))
+            BotConfiguration botConfig;
+
+            // Loads .bot configuration file.
+            if (File.Exists(botConfigPath))
             {
-                throw new FileNotFoundException($"The .bot configuration file was not found. botConfigPath: '{botConfigPath}'");
+                botConfig = BotConfiguration.Load(botConfigPath);
+            }
+            else
+            {
+                botConfig = new BotConfiguration();
             }
 
-            // Loads .bot configuration file and adds a singleton that the Bot can access through dependency injection.
-            var botConfig = BotConfiguration.Load(botConfigPath, botConfigKey);
-            services.AddSingleton(sp => botConfig ?? throw new InvalidOperationException($"The .bot configuration file could not be loaded. botFilePath: {botConfigPath}"));
+            // Add a singleton that the Bot can access through dependency injection.
+            services.AddSingleton(sp => botConfig);
 
             // Initialize Bot Connected Services clients.
             var connectedServices = new BotServices(botConfig);
@@ -73,12 +78,10 @@ namespace GameATron4000
             {
                 // Retrieve current endpoint.
                 var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint");
-                if (!(service is EndpointService endpointService))
+                if (service is EndpointService endpointService)
                 {
-                    throw new InvalidOperationException($"The .bot file does not contain an endpoint.");
+                    options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
                 }
-
-                options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
 
                 IStorage dataStore = new MemoryStorage();
                 options.State.Add(new ConversationState(dataStore));

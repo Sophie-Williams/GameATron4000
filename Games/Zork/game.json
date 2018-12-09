@@ -1,5 +1,10 @@
 {
     "InitialRoom": "house",
     "SupportsGui": false,
-    "BadCommandResponses": [ "Sorry, you can't do that." ]
+    "BadCommandResponses": [ "Sorry, you can't do that." ],
+    "RoomScripts": [
+        { "Key": "house", "Path": "house.room" }
+    ],
+    "ConversationScripts": [
+    ]
 }

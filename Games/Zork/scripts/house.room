@@ -1,4 +1,4 @@
-Player: <RoomEntered>
+Player: <EnterRoom>
 [Text:Describe="Welcome to Zork - The Unofficial Game-a-Tron 4000 Version. This script is based on the Unofficial Python Version. See https://github.com/iamjawa/zork-py."]
 [Text:Describe="You are standing in an open field west of a white house, with a boarded front door."]
 [Text:Describe="(A secret path leads southwest into the forest.)"]
@@ -9,7 +9,7 @@ Player: take mailbox
 
 Player: open mailbox
 [Text:Describe="Opening the small mailbox reveals a leaflet."]
-[AddToInventory=leaflet]
+[AddToInventory=leaflet "leaflet"]
 
 Player: go east
 [Text:Describe="The door is boarded and you cannot remove the boards."]
@@ -25,7 +25,4 @@ Player: look at house
 
 {leaflet}
 Player: read leaflet
-[Text:Describe="'Welcome to the Unofficial Game-a-Tron 4000 Version of Zork. Your mission is to find a Jade Statue.'"]
-
-Player: go southwest
-[Text:Describe="NotImplementedException"]
+[Text:Describe="'Welcome to the Unofficial Game-A-Tron 4000 Version of Zork. Your mission would be to find a Jade Statue, but we didn't implement the entire game.'"]
