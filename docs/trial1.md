@@ -53,10 +53,7 @@ To secure the connection between the Azure Bot Service and the bot, register an 
 1. To register an application with Azure AD execute the following command from the command line (or Cloud Shell in Azure Portal). Replace *\<Tenant>* with the Azure tenant name (name of the AD) and *\<MSA password>* with the password you want to use for the application registration.  
 
 ```
-az ad app create --display-name GameATron4000 \
-    --identifier-uris http://<Tenant>.onmicrosoft.com/gameatron4000 \
-    --password <MSA password> \
-    --available-to-other-tenants true
+az ad app create --display-name GameATron4000 --identifier-uris http://<Tenant>.onmicrosoft.com/gameatron4000 --password <MSA password> --available-to-other-tenants true
 ```
 
 After the command has completed, the output JSON will contain an ```appId``` element with the MSA app ID. Make a note of it as you'll need it shortly.
@@ -94,13 +91,7 @@ az configure --defaults group=GameATron4000RG location=westus
 3. Create the registration using the ngrok public forwarding HTTPS URL. Note that ```/api/messages``` must be appended to get the full endpoint URL.
 
 ```
-az bot create \
-    --kind registration \
-    --name GameATron4000Reg \
-    --appid <MSA app ID>
-    --password <MSA password>
-    --endpoint <ngrok HTTPS URL>/api/messages \
-    --sku F0
+az bot create --kind registration --name GameATron4000Reg --appid <MSA app ID> --password <MSA password> --endpoint <ngrok HTTPS URL>/api/messages --sku F0
 ```
 
 4. Next, create a Direct Line channel for the bot registration:
@@ -126,10 +117,7 @@ msbot connect bot --serviceName GameATron4000Reg --tenantId <Tenant>.onmicrosoft
 2. Add the service configuration to connect to the Direct Line channel. Direct Line channels are not natively supported as a connected resource, so you'll use the `connect generic` command to connect a generic service configuration which contains the Direct Line secret. Use the Direct Line secret that was returned in the output JSON when you created the channel in Azure.
 
 ```
-msbot connect generic \
-    --name DirectLine \
-    --url "no-url" \
-    --keys "{\"secret\":\"<Direct Line secret>\"}"
+msbot connect generic --name DirectLine --url "no-url" --keys "{\"secret\":\"<Direct Line secret>\"}"
 ```
 
 ### Run the game in the browser
