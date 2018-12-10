@@ -13,6 +13,8 @@ namespace GameATron4000
 
         public string DirectLineSecret { get; private set; }
 
+        public string TranslatorKey { get; private set; }
+
         /// Gets the set of LUIS Services used.
         /// LuisServices is represented as a dictionary.  
         public Dictionary<string, LuisRecognizer> LuisServices { get; } = new Dictionary<string, LuisRecognizer>();
@@ -38,6 +40,8 @@ namespace GameATron4000
                             DirectLineSecret = directLineService.Configuration["secret"];
                         }
 
+                        // TODO Trial 2: Read translator key from configuration.
+                        
                         break;
                     }
                     case ServiceTypes.Luis:

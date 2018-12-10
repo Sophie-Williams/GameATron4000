@@ -4,6 +4,7 @@ using System.Linq;
 using GameATron4000.Configuration;
 using GameATron4000.Games;
 using GameATron4000.Models;
+using GameATron4000.Translator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +53,7 @@ namespace GameATron4000
             
             // Configure custom options classes for Bot and LUIS configuration sections.
             services.Configure<GuiOptions>(Configuration.GetSection("GUI"));
+            services.Configure<TranslatorOptions>(Configuration.GetSection("Translator"));
             services.Configure<LUISOptions>(Configuration.GetSection("LUIS"));
 
             var botConfigPath = Configuration.GetValue<string>("Bot:FilePath");
@@ -76,6 +78,11 @@ namespace GameATron4000
 
             services.AddBot<GameBot>(options =>
             {
+                var translatorOptions = new TranslatorOptions();
+                Configuration.GetSection("Translator").Bind(translatorOptions);
+
+                // TODO Trial 2: Register middleware here.
+
                 // Retrieve current endpoint.
                 var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint");
                 if (service is EndpointService endpointService)
