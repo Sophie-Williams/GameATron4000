@@ -122,7 +122,7 @@ In order to use the model from the game-engine, you need to collect a couple of 
 Now that you have a trained and published the model, it's time to integrate it with the bot. 
 
 ### Generate the LUIS model
-LUIS offers a .NET Core CLI tool for generating a helper class for interpreting the result of a call to your LUIS model. The input for this tool is an export of your trained LUIS model. Such an export can be made from the LUIS portal, but I have already added the exported model to the project. It is in the `0.1.json` file in the root of the project.   
+LUIS offers a .NET Core CLI tool for generating a helper class for interpreting the result of a call to your LUIS model. The input for this tool is an export of your trained LUIS model. Such an export can be made from the LUIS portal, but I have already added the exported model to the project. It is in the `luismodel-0.1.json` file in the root of the project.   
 
 Execute the following steps to generate the LUISModel class:
 
@@ -130,7 +130,7 @@ Execute the following steps to generate the LUISModel class:
 
 2. Change the current working-folder to the GameATron4000 project root-folder.
 
-3. Issue the following command: `luisgen 0.1.json -cs LUISModel`. A file called `LUISModel.cs` will be created. You can examine the generated code in VS Code.
+3. Issue the following command: `luisgen luismodel-0.1.json -cs LUISModel`. A file called `LUISModel.cs` will be created. You can examine the generated code in VS Code.
 
 ### *ToCommand* extension method
 In order to make using the generated LUISModel class as easy as possible, I have created an extension-method `ToCommand` to the LUISModel class. This method will take the result of a call to your LUIS model, interpret it and turn into a bot command. You can check-out the code in the file `LUISMOdel.Extensions.cs`. This is a fairly specific implementation that assumes you're using 2 entities of type list named *GameObject* and *GameActor*. You check the Microsoft docs later for more information on how LUIS results are structured. 
