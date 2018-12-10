@@ -16,13 +16,13 @@ In this lab you'll learn how to use the emulator to test a bot. You will also le
 
 6. On the **New bot configuration** dialog, enter *GameATron4000* as the bot name and the endpoint you saved from the browser when you started debugging. Leave the MSA app ID and MSA app password blank for now.
 
-![New bot configuration](new-bot-config.png)
+![New bot configuration](img/new-bot-config.png)
 
 7. Click **Save and connect**, name your bot file *GameATron4000.bot*, and save the file in the Game-A-Tron 4000™ project folder.
 
 8. The emulator will connect to the bot. Choose *ReturnOfTheBodySnatchers* as the game you want to play. You can now enter messages like *look at newspaper* to play the game.
 
-![Text gameplay](text-gameplay.png)
+![Text gameplay](img/text-gameplay.png)
 
 9. In Visual Studio, select **Debug | Stop Debugging**.
 
@@ -44,7 +44,7 @@ ngrok http -host-header=rewrite 5000
 
 3. When ngrok starts, it will display the public forwarding HTTPS URL you’ll need to copy and save for later, as highlighted below:
 
-![ngrok](ngrok.png)
+![ngrok](img/ngrok.png)
 
 ### Register an Azure AD application
 

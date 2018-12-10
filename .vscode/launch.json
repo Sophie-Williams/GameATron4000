@@ -20,7 +20,7 @@
                 "args": "http://localhost:5000/api/messages",
                 "windows": {
                     "command": "cmd.exe",
-                    "args": "/C start ${auto-detect-url}"
+                    "args": "/C start http://localhost:5000/api/messages"
                 },
                 "osx": {
                     "command": "open"

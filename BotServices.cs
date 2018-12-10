@@ -44,14 +44,8 @@ namespace GameATron4000
                         
                         break;
                     }
-                    case ServiceTypes.Luis:
-                    {
-                        var luis = (LuisService)service;
-                        var app = new LuisApplication(luis.AppId, luis.SubscriptionKey, luis.GetEndpoint());
-                        var recognizer = new LuisRecognizer(app);
-                        LuisServices.Add(luis.Name, recognizer);
-                        break;
-                    }
+
+                    // TODO Trial 3: Add LUIS service
                 }
             }
         }

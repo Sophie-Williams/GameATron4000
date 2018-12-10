@@ -75,17 +75,7 @@ namespace GameATron4000
                 }
                 else
                 {
-                    // get command from LUIS (if enabled)
-                    if (_luisOptions.Enabled)
-                    {
-                        var recognizerResult = await _services.LuisServices["gameatron4000"]
-                            .RecognizeAsync<LUISModel>(context, cancellationToken);
-                        string command  = recognizerResult.ToCommand();
-                        if (!string.IsNullOrEmpty(command))
-                        {
-                            context.Activity.Text = command;
-                        }
-                    }
+                    // TODO Trial 3: Add call to LUIS service
 
                     await dc.ContinueDialogAsync();
                 }
