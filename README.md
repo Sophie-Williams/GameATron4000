@@ -20,8 +20,8 @@ Alternatively, you can use the Cloud Shell in the Azure portal.
 
 ## The Three Trials
 
-1. [Test the Game-A-Tron 4000™ bot locally](docs/trial1.md)
+1. [Test the Game-A-Tron 4000™ bot locally.](docs/trial1.md)
 
-2. [Add translator middle-ware](docs/trial2.md)
+2. [Add translator middle-ware.](docs/trial2.md)
 
-1. [Add natural language support using LUIS](docs/trial3.md)
+1. [Add natural language support using LUIS.](docs/trial3.md)

@@ -1,4 +1,4 @@
-# Trial II: Add text translation to the bot
+# Trial 2: Add text translation to the bot
 
 In this lab you'll learn how to use the emulator to test a bot. You will also learn how you can connect the Azure Bot Service to a bot running on your local machine to allow for debugging.
 

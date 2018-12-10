@@ -1,4 +1,4 @@
-# Trial I: Test the Game-A-Tron 4000™ bot locally
+# Trial 1: Test the Game-A-Tron 4000™ bot locally
 
 In this lab you'll learn how to use the emulator to test a bot. You will also learn how you can connect the Azure Bot Service to a bot running on your local machine to allow for debugging.
 
