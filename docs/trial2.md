@@ -1,189 +1,109 @@
-# Trial 2: Add text translation to the bot
+# Trial 2: Add text translation middleware
 
-In this lab you'll learn how to use the emulator to test a bot. You will also learn how you can connect the Azure Bot Service to a bot running on your local machine to allow for debugging.
+In this lab you'll learn how to use middleware to intercept messages sent from the bot. We'll use the custom middleware to translate the text in the game using the Microsoft Translator Text API. Microsoft Translator Text API is a cloud-based machine translation service. With this API you can translate text in near real-time from any app or service through a simple REST API call. 
 
-## 1. Test locally using the Emulator
+## Configure Microsoft Translator Text API key
 
-1. Open the project folder in Visual Studio Code.
+1. First obtain a key following the instructions in the [Microsoft Translator Text API documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/translator-text-how-to-signup).
 
-2. In Visual Studio Code, select **Debug | Start Debugging**.
-
-3. In the web browser that opens, make a note of the URL (nevermind the 405 HTTP error, the bot doesn't accept GET requests).
-
-4. Start the Bot Framework Emulator.
-
-5. Select **File | New Bot Configuration...**.
-
-6. On the **New bot configuration** dialog, enter *GameATron4000* as the bot name and the endpoint you saved from the browser when you started debugging. Leave the MSA app ID and MSA app password blank for now.
-
-![New bot configuration](img/new-bot-config.png)
-
-7. Click **Save and connect**, name your bot file *GameATron4000.bot*, and save the file in the Game-A-Tron 4000™ project folder.
-
-8. The emulator will connect to the bot. Choose *ReturnOfTheBodySnatchers* as the game you want to play. You can now enter messages like *look at newspaper* to play the game.
-
-![Text gameplay](img/text-gameplay.png)
-
-9. In Visual Studio, select **Debug | Stop Debugging**.
-
-## 2. Test locally using the Point & Click client
-
-The Game-A-Tron 4000™ graphical user interface uses a Direct Line channel to connect to the bot. To get a Direct Line channel the bot needs to be registered with the Azure Bot Service. This is just a registration to make use of the provided channels, the bot code itself can run anywhere you want.
-
-### Install and run ngrok
-
-For now, we'll just keep it running on your local machine. You'll use **ngrok** to expose your local machine (which may be behind NATs and firewalls) to the public internet over a secure tunnel. This enables the Azure Bot Service on the web to forward messages directly to your local machine to allow for debugging.
-
-1. Download ngrok from https://ngrok.com/download.
-
-2. From the command line, run the following command:
+2. Add the key to the .bot file:
 
 ```
-ngrok http -host-header=rewrite 5000
+msbot connect generic --name Translator --url "no-url" --keys "{\"key\":\"<API key>\"}"
 ```
 
-3. When ngrok starts, it will display the public forwarding HTTPS URL you’ll need to copy and save for later, as highlighted below:
+3. In *BotServices.cs* find the line `// TODO Trial 2: Read translator key from configuration.` and add the following code to read the API key from the .bot file:
 
-![ngrok](img/ngrok.png)
-
-### Register an Azure AD application
-
-To secure the connection between the Azure Bot Service and the bot, register an application with Azure AD to get a Microsoft app ID and password.
-
-1. To register an application with Azure AD execute the following command from the command line (or Cloud Shell in Azure Portal). Replace *\<Tenant>* with the Azure tenant name (name of the AD) and *\<MSA password>* with the password you want to use for the application registration.  
-
-```
-az ad app create --display-name GameATron4000 --identifier-uris http://<Tenant>.onmicrosoft.com/gameatron4000 --password <MSA password> --available-to-other-tenants true
+```csharp
+if (service.Name == "Translator")
+{
+    var translatorService = (GenericService)service;
+    TranslatorKey = translatorService.Configuration["key"];
+}
 ```
 
-After the command has completed, the output JSON will contain an ```appId``` element with the MSA app ID. Make a note of it as you'll need it shortly.
+## Add middleware to the bot
 
-### Add the credentials to the .bot file
+1. In the *Translator* folder, add a new *TranslatorMiddleware.cs* file with the following class:
 
-A .bot file acts as the place to bring all service references together to enable tooling. Game-A-Tron 4000™ uses the .bot file to load service configuration information such as the Azure Bot Service registration,  MSA app ID and password, and the Direct Line secret.
+```csharp
+public class TranslatorMiddleware : IMiddleware
+{
+    private readonly TranslatorOptions _options;
+    private readonly TranslatorClient _client;
 
-You previously created a .bot file using the Bot Framework Emulator. Now you will update the .bot file with the MSA app id and password.
+    public TranslatorMiddleware(TranslatorOptions options, BotServices connectedServices)
+    {
+        _options = options;
+        _client = new TranslatorClient(connectedServices.TranslatorKey);
+    }
 
-1. Switch back to the emulator, right-click on the endpoint, and select **Edit settings**.
-
-2. Fill in the MSA app ID and password and click **Submit**.
-
-At this point, you can start the debugger again to test the bot in the emulator (select **Restart conversation** in the emulator). Both the Game-A-Tron 4000™ bot and the emulator now use the MSA app id and password from the .bot file for authorization.
-
-### Create the Azure Bot Service registration
-
-We'll use the Azure CLI tool to register the Game-A-Tron 4000™ bot with the Azure Bot Service. Alternatively, you can use the Cloud Shell in the Azure Portal, or the Portal UI.
-
-1. Start by creating a resource group:
-
-```
-az group create --name GameATron4000RG --location westus
-```
-
-2. Use this newly created Resource Group as the default group in any subsequent
-commands so we don't have to type it in each time. Tell the CLI that we want
-everything stored in the West US data center too.
-
-```
-az configure --defaults group=GameATron4000RG location=westus
+    public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
+    {
+        // TODO Insert code to translate sent message activities here.
+        
+        // Call next middleware.
+        await next(cancellationToken).ConfigureAwait(false);
+    }
+}
 ```
 
-3. Create the registration using the ngrok public forwarding HTTPS URL. Note that ```/api/messages``` must be appended to get the full endpoint URL.
+The `IMiddleware` interface declares an `OnTurnAsync` method where we can place our code to intercept the bot activities.  
 
-```
-az bot create --kind registration --name GameATron4000Reg --appid <MSA app ID> --password <MSA password> --endpoint <ngrok HTTPS URL>/api/messages --sku F0
-```
+2. Add the following code to the `OnTurnAsync` method.
 
-4. Next, create a Direct Line channel for the bot registration:
+```csharp
+if (_options.Enabled)
+{
+    turnContext.OnSendActivities(async (context, activities, nextSend) =>
+    {
+        IEnumerable<Task> translatorTasks = activities
+            .Where(a => a.Type == ActivityTypes.Message)
+            .Select(a => a.AsMessageActivity())
+            .Select(async activity =>
+            {
+                activity.Text = await _client.TranslateAsync(activity.Text, _options.Language).ConfigureAwait(false);
+            });
 
-```
-az bot directline create --name GameATron4000Reg
-```
+        await Task.WhenAll(translatorTasks).ConfigureAwait(false);
 
-After the command has completed, the output JSON will contain a ```key``` element with the Direct Line secret.
-
-### Add service connections to the .bot file
-
-Now you will add additional configuration information for the Azure Bot Service registration and the Direct Line channel to the .bot file.
-
-This time, we'll use the [MSBot](https://github.com/Microsoft/botbuilder-tools/blob/master/packages/MSBot/README.md) tool to add the information to the file. Run the tool from the Game-A-Tron 4000™ project folder. It will automatically find and update your .bot file:
-
-1. Add the service configuration to connect to the Azure Bot Service:
-
-```
-msbot connect bot --serviceName GameATron4000Reg --tenantId <Tenant>.onmicrosoft.com --subscriptionId <Azure Subscription ID> --resourceGroup GameATron4000RG --appId <MSA app ID> --appPassword <MSA password> --endpoint <ngrok HTTPS URL>/api/messages
+        return await nextSend();
+    });
+}
 ```
 
-2. Add the service configuration to connect to the Direct Line channel. Direct Line channels are not natively supported as a connected resource, so you'll use the `connect generic` command to connect a generic service configuration which contains the Direct Line secret. Use the Direct Line secret that was returned in the output JSON when you created the channel in Azure.
+This code listens to all activities sent by the bot, filters out the Message activities and then translates the text within the Message activities using the Translator Text API. 
+
+3. In *Startup.cs* register the translation middleware in the `ConfigureServices` method (there's a TODO comment in the code):
+
+```csharp
+services.AddBot<GameBot>(options =>
+{
+    ...
+
+    // TODO Trial 2: Register middleware here.
+    options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
+
+    ...
+});
 
 ```
-msbot connect generic --name Translator --url "no-url" --keys "{\"key\":\"12c2d39c1a634624b984c29688707757\"}"
+
+## Run the game
+
+1. Open `appsettings.Development.json` and enable the Translator. You can also specify the target language here.
+
+```json
+  "Translator": {
+    "Enabled": true,
+    "Language": "nl"
+  },
 ```
 
-### Run the game in the browser
-
-1. Return to Visual Studio Code and select **Debug | Start Debugging**.
+2. Select **Debug | Start Debugging**.
 
 3. In the web browser that opens, remove `/api/messages/` from the URL.
 
 4. Select *Return of the Body Snatchers*.
 
-The game GUI will now load. If you open your browser's developer tools you can view the interaction between the bot and the browser in the console log.
-
-
----------------
-
-https://github.com/Microsoft/BotBuilder-Samples/tree/master/samples/csharp_dotnetcore/17.multilingual-bot
-
-
-
-
-
-                        if (service.Name == "Translator")
-                        {
-                            var translatorService = (GenericService)service;
-                            TranslatorKey = translatorService.Configuration["key"];
-                        }
-
-Startup.cs:
-
-                options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
-
-
-TranslatorMiddleware.cs:
-
-
-public class TranslatorMiddleware : IMiddleware
-    {
-        private readonly TranslatorOptions _options;
-        private readonly TranslatorClient _client;
-
-        public TranslatorMiddleware(TranslatorOptions options, BotServices connectedServices)
-        {
-            _options = options;
-            _client = new TranslatorClient(connectedServices.TranslatorKey);
-        }
-
-        public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (_options.Enabled)
-            {
-                turnContext.OnSendActivities(async (context, activities, nextSend) =>
-                {
-                    IEnumerable<Task> translatorTasks = activities
-                        .Where(a => a.Type == ActivityTypes.Message)
-                        .Select(a => a.AsMessageActivity())
-                        .Select(async activity =>
-                        {
-                            activity.Text = await _client.TranslateAsync(activity.Text, _options.Language).ConfigureAwait(false);
-                        });
-
-                    await Task.WhenAll(translatorTasks).ConfigureAwait(false);
-
-                    return await nextSend();
-                });
-            }
-
-            await next(cancellationToken).ConfigureAwait(false);
-        }
-    }
+The game GUI will now load and any Message activities sent from the bot will be translated. Note that not all text in the game is translated yet. For example, the user still needs to input the commands in English. This is mainly because user input must exactly match the scripted commands for the game to react. In the next lab, we'll look at LUIS to improve the bot the accept a more diverse range of commands.
