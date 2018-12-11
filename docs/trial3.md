@@ -26,7 +26,8 @@ Within a LUIS account you can create multiple LUIS applications. In this step yo
 
 1. Click the `+ Create new app` button.
 
-2. Enter `GameATron4000` as name, `English` as culture and a description:  
+2. Enter `GameATron4000` as name, `English` as culture and a description:
+  
    ![](img/create-luis-app.png)
 
 3. Click the `done` button to create the app.
@@ -47,7 +48,9 @@ You will start by adding support for the *look at* command by executing the foll
 The newly created intent will automatically be selected. Now it is time to add *utterances* to the intent. An utterance is a sentence that LUIS will use to recognize the *look at* intent. The more utterances you add, the better LUIS will be able to determine the intent. Now add a couple of utterances for the *look at* intent:
 
 1. Click the text-box just below the name of the intent to give it focus:
+
    ![](img/add-utterance.png)
+
 2. Type the following utterances, each followed by `enter`:
 	- look at newspaper
 	- watch newspaper
