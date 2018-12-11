@@ -133,7 +133,83 @@ Execute the following steps to generate the LUISModel class:
 3. Issue the following command: `luisgen luismodel-0.1.json -cs LUISModel`. A file called `LUISModel.cs` will be created. You can examine the generated code in VS Code.
 
 ### *ToCommand* extension method
-In order to make using the generated LUISModel class as easy as possible, I have created an extension-method `ToCommand` to the LUISModel class. This method will take the result of a call to your LUIS model, interpret it and turn into a bot command. You can check-out the code in the file `LUISMOdel.Extensions.cs`. This is a fairly specific implementation that assumes you're using 2 entities of type list named *GameObject* and *GameActor*. You check the Microsoft docs later for more information on how LUIS results are structured. 
+In order to make using the generated LUISModel class as easy as possible, you will created an extension-method `ToCommand` to the LUISModel class. 
+
+Execute the following steps to add the extension-method:
+
+1. Add a new file called `LUISMOdel.Extensions.cs` to the root of the project.
+
+2. Paste the following code-snippet into the file:
+	```csharp
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Threading.Tasks;
+	
+	namespace Luis
+	{
+	    public static class LUISModelExtensions
+	    {
+	        public static string ToCommand(this LUISModel recognizerResult)
+	        {
+	            // parse LUIS results to get intent and entity
+	            string intent = GetLUISIntent(recognizerResult);
+	            if (intent != null)
+	            {
+	                IEnumerable<string> entities = GetLUISEntities(recognizerResult);
+	                if (entities.Count() > 0)
+	                {
+	                    switch(intent)
+	                    {
+	                        case "use":
+	                            return $"use {entities.First()} with {entities.Last()}";
+	
+	                        case "give":
+	                            return $"give {entities.First()} to {entities.Last()}";
+	                        
+	                        default:
+	                            return $"{intent} {entities.First()}";        
+	                    }
+	                }
+	            }
+	
+	            return null;
+	        }
+	
+	        #region LUIS result parsing
+	
+	        private static string GetLUISIntent(LUISModel luisResult)
+	        {
+	            string intent = null;
+	            var topIntent = luisResult.TopIntent();
+	            if (topIntent.intent  != LUISModel.Intent.None)
+	            {
+	                intent = topIntent.intent.ToString().Replace("_", " ");
+	            }
+	            return intent;
+	        }
+	
+	        private static IEnumerable<string> GetLUISEntities(LUISModel luisResult)
+	        {
+	            List<string> entities = new List<string>();
+	
+	            if (luisResult.Entities.GameObject?.Count() > 0)
+	            {
+	                entities.AddRange(luisResult.Entities.GameObject.Select(o => o[0]).ToList());
+	            }
+	            if (luisResult.Entities.GameActor?.Count() > 0)
+	            {
+	                entities.AddRange(luisResult.Entities.GameActor.Select(o => o[0]).ToList());
+	            }
+	
+	            return entities;
+	        }
+	
+	        #endregion
+	    }
+	}
+	```  
+
+3. Examine the code. This method will take the result of a call to your LUIS model, interpret it and turn into a bot command. This is a fairly specific implementation that assumes you're using 2 entities of type list named *GameObject* and *GameActor*.
 
 ### Add the LUIS service to the bot
 Now you will add the LUIS Service to the Bot. Execute the following steps:
@@ -156,6 +232,11 @@ Now you will add the LUIS Service to the Bot. Execute the following steps:
 Now you will add a call to LUIS to the bot code. This will make sure that all input from the user is sent to LUIS. Execute the following steps:
 
 1. Open the `GameBot.cs` file in the root of the project.
+
+2. Import the *Luis* namespace by adding a using statement: 
+	```csharp
+	using Luis;.
+	```
 
 2. Find the `OnTurnAsync` method. 
 
