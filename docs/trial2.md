@@ -27,12 +27,15 @@ if (service.Name == "Translator")
 1. In the *Translator* folder, add a new *TranslatorMiddleware.cs* file with the following class:
 
 ```csharp
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000;
 using GameATron4000.Configuration;
 using GameATron4000.Translator;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
 
 public class TranslatorMiddleware : IMiddleware
 {
