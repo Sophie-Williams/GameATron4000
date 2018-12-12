@@ -84,19 +84,10 @@ if (_options.Enabled)
 
 This code listens to all activities sent by the bot, filters out the Message activities and then translates the text within the Message activities using the Translator Text API. 
 
-3. In *Startup.cs* register the translation middleware in the `ConfigureServices` method (there's a TODO comment in the code):
+3. In *Startup.cs* replace the line `// TODO Trial 2: Register middleware here.` with the following code-snippet:
 
 ```csharp
-services.AddBot<GameBot>(options =>
-{
-    ...
-
-    // TODO Trial 2: Register middleware here.
-    options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
-
-    ...
-});
-
+options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
 ```
 
 ## Run the game
