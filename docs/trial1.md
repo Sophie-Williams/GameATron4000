@@ -16,13 +16,13 @@ In this lab you'll learn how to use the emulator to test a bot. You will also le
 
 6. On the **New bot configuration** dialog, enter *GameATron4000* as the bot name and the endpoint you saved from the browser when you started debugging. Leave the MSA app ID and MSA app password blank for now.
 
-![New bot configuration](img/new-bot-config.png)
+	![New bot configuration](img/new-bot-config.png)
 
 7. Click **Save and connect**, name your bot file *GameATron4000.bot*, and save the file in the Game-A-Tron 4000™ project folder.
 
 8. The emulator will connect to the bot. Choose *ReturnOfTheBodySnatchers* as the game you want to play. You can now enter messages like *look at newspaper* to play the game.
 
-![Text gameplay](img/text-gameplay.png)
+	![Text gameplay](img/text-gameplay.png)
 
 9. In Visual Studio, select **Debug | Stop Debugging**.
 
@@ -38,13 +38,13 @@ For now, we'll just keep it running on your local machine. You'll use **ngrok** 
 
 2. From the command line, run the following command:
 
-```
-ngrok http -host-header=rewrite 5000
-```
+	```
+	ngrok http -host-header=rewrite 5000
+	```
 
 3. When ngrok starts, it will display the public forwarding HTTPS URL you’ll need to copy and save for later, as highlighted below:
 
-![ngrok](img/ngrok.png)
+	![ngrok](img/ngrok.png)
 
 ### Register an Azure AD application
 
@@ -52,9 +52,9 @@ To secure the connection between the Azure Bot Service and the bot, register an 
 
 1. To register an application with Azure AD execute the following command from the command line (or Cloud Shell in Azure Portal). Replace *\<Tenant>* with the Azure tenant name (name of the AD) and *\<MSA password>* with the password you want to use for the application registration.  
 
-```
-az ad app create --display-name GameATron4000 --identifier-uris http://<Tenant>.onmicrosoft.com/gameatron4000 --password <MSA password> --available-to-other-tenants true
-```
+	```
+	az ad app create --display-name GameATron4000 --identifier-uris http://<Tenant>.onmicrosoft.com/gameatron4000 --password <MSA password> --available-to-other-tenants true
+	```
 
 After the command has completed, the output JSON will contain an ```appId``` element with the MSA app ID. Make a note of it as you'll need it shortly.
 
@@ -76,29 +76,31 @@ We'll use the Azure CLI tool to register the Game-A-Tron 4000™ bot with the Az
 
 1. Start by creating a resource group:
 
-```
-az group create --name GameATron4000RG --location westus
-```
+	```
+	az group create --name GameATron4000RG --location westus
+	```
 
 2. Use this newly created Resource Group as the default group in any subsequent
 commands so we don't have to type it in each time. Tell the CLI that we want
 everything stored in the West US data center too.
 
-```
-az configure --defaults group=GameATron4000RG location=westus
-```
+	```
+	az configure --defaults group=GameATron4000RG location=westus
+	```
 
-3. Create the registration using the ngrok public forwarding HTTPS URL. Note that ```/api/messages``` must be appended to get the full endpoint URL. **Make sure you use a unique name for the registration (in stead of 'GameATron4000Reg') and use this name throughout the rest of the trial.**
+3. Create the registration using the ngrok public forwarding HTTPS URL. Note that ```/api/messages``` must be appended to get the full endpoint URL. 
 
-```
-az bot create --kind registration --name GameATron4000Reg --appid <MSA app ID> --password <MSA password> --endpoint <ngrok HTTPS URL>/api/messages --sku F0
-```
+  >**Make sure you replace the name of the registration 'GameATron4000Reg' with something unique (maybe prefix it with your name) and use this name throughout the rest of the trial.**
+
+	```
+	az bot create --kind registration --name GameATron4000Reg --appid <MSA app ID> --password <MSA password> --endpoint <ngrok HTTPS URL>/api/messages --sku F0
+	```
 
 4. Next, create a Direct Line channel for the bot registration:
 
-```
-az bot directline create --name GameATron4000Reg
-```
+	```
+	az bot directline create --name GameATron4000Reg
+	```
 
 After the command has completed, the output JSON will contain a ```key``` element with the Direct Line secret.
 
@@ -110,15 +112,15 @@ This time, we'll use the [MSBot](https://github.com/Microsoft/botbuilder-tools/b
 
 1. Add the service configuration to connect to the Azure Bot Service (you can get the subscription id by running `az account show`):
 
-```
-msbot connect bot --serviceName GameATron4000Reg --tenantId <Tenant>.onmicrosoft.com --subscriptionId <Azure Subscription ID> --resourceGroup GameATron4000RG --appId <MSA app ID> --appPassword <MSA password> --endpoint <ngrok HTTPS URL>/api/messages
-```
+	```
+	msbot connect bot --serviceName GameATron4000Reg --tenantId <Tenant>.onmicrosoft.com --subscriptionId <Azure Subscription ID> --resourceGroup GameATron4000RG --appId <MSA app ID> --appPassword <MSA password> --endpoint <ngrok HTTPS URL>/api/messages
+	```
 
 2. Add the service configuration to connect to the Direct Line channel. Direct Line channels are not natively supported as a connected resource, so you'll use the `connect generic` command to connect a generic service configuration which contains the Direct Line secret. Use the Direct Line secret that was returned in the output JSON when you created the channel in Azure.
 
-```
-msbot connect generic --name DirectLine --url "no-url" --keys "{\"secret\":\"<Direct Line secret>\"}"
-```
+	```
+	msbot connect generic --name DirectLine --url "no-url" --keys "{\"secret\":\"<Direct Line secret>\"}"
+	```
 
 ### Run the game in the browser
 

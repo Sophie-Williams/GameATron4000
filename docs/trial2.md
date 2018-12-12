@@ -8,107 +8,107 @@ In this lab you'll learn how to use middleware to intercept messages sent from t
 
 2. Add the key to the .bot file:
 
-```
-msbot connect generic --name Translator --url "no-url" --keys "{\"key\":\"<API key>\"}"
-```
+	```
+	msbot connect generic --name Translator --url "no-url" --keys "{\"key\":\"<API key>\"}"
+	```
 
 3. In *BotServices.cs* replace the line `// TODO Trial 2: Read translator key from configuration.` with the following code-snippet to read the API key from the .bot file:
 
-```csharp
-if (service.Name == "Translator")
-{
-    var translatorService = (GenericService)service;
-    TranslatorKey = translatorService.Configuration["key"];
-}
-```
+	```csharp
+	if (service.Name == "Translator")
+	{
+	    var translatorService = (GenericService)service;
+	    TranslatorKey = translatorService.Configuration["key"];
+	}
+	```
 
 ## Add middleware to the bot
 
 1. In the *Translator* folder, add a new *TranslatorMiddleware.cs* file with the following class:
 
-```csharp
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using GameATron4000;
-using GameATron4000.Configuration;
-using GameATron4000.Translator;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Schema;
-
-public class TranslatorMiddleware : IMiddleware
-{
-    private readonly TranslatorOptions _options;
-    private readonly TranslatorClient _client;
-
-    public TranslatorMiddleware(TranslatorOptions options, BotServices connectedServices)
-    {
-        _options = options;
-        _client = new TranslatorClient(connectedServices.TranslatorKey);
-    }
-
-    public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
-    {
-        // TODO Insert code to translate sent message activities here.
-        
-        // Call next middleware.
-        await next(cancellationToken).ConfigureAwait(false);
-    }
-}
-```
+	```csharp
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text.RegularExpressions;
+	using System.Threading;
+	using System.Threading.Tasks;
+	using GameATron4000;
+	using GameATron4000.Configuration;
+	using GameATron4000.Translator;
+	using Microsoft.Bot.Builder;
+	using Microsoft.Bot.Schema;
+	
+	public class TranslatorMiddleware : IMiddleware
+	{
+	    private readonly TranslatorOptions _options;
+	    private readonly TranslatorClient _client;
+	
+	    public TranslatorMiddleware(TranslatorOptions options, BotServices connectedServices)
+	    {
+	        _options = options;
+	        _client = new TranslatorClient(connectedServices.TranslatorKey);
+	    }
+	
+	    public async Task OnTurnAsync(ITurnContext turnContext, NextDelegate next, CancellationToken cancellationToken = default(CancellationToken))
+	    {
+	        // TODO Insert code to translate sent message activities here.
+	        
+	        // Call next middleware.
+	        await next(cancellationToken).ConfigureAwait(false);
+	    }
+	}
+	```
 
 The `IMiddleware` interface declares an `OnTurnAsync` method where we can place our code to intercept the bot activities.  
 
 2. Replace the line `// TODO Insert code to translate sent message activities here.` in the `OnTurnAsync` method with the following code-snippet:
 
-```csharp
-if (_options.Enabled)
-{
-    turnContext.OnSendActivities(async (context, activities, nextSend) =>
-    {
-        IEnumerable<Task> translatorTasks = activities
-            .Where(a => a.Type == ActivityTypes.Message)
-            .Select(a => a.AsMessageActivity())
-            .Select(async activity =>
-            {
-                // The activity also contains the name of the actor, we don't want to translate those.
-                var match = Regex.Match(activity.Text, "(?<ActorName>.*?) > (?<Text>.*)");
-                if (match.Success)
-                {
-                    var translatedText = await _client.TranslateAsync(match.Groups["Text"].Value, _options.Language)
-                        .ConfigureAwait(false);
-
-                    activity.Text = $"{match.Groups["ActorName"].Value} > {translatedText}";
-                }
-            });
-
-        await Task.WhenAll(translatorTasks).ConfigureAwait(false);
-
-        return await nextSend();
-    });
-}
-```
+	```csharp
+	if (_options.Enabled)
+	{
+	    turnContext.OnSendActivities(async (context, activities, nextSend) =>
+	    {
+	        IEnumerable<Task> translatorTasks = activities
+	            .Where(a => a.Type == ActivityTypes.Message)
+	            .Select(a => a.AsMessageActivity())
+	            .Select(async activity =>
+	            {
+	                // The activity also contains the name of the actor, we don't want to translate those.
+	                var match = Regex.Match(activity.Text, "(?<ActorName>.*?) > (?<Text>.*)");
+	                if (match.Success)
+	                {
+	                    var translatedText = await _client.TranslateAsync(match.Groups["Text"].Value, _options.Language)
+	                        .ConfigureAwait(false);
+	
+	                    activity.Text = $"{match.Groups["ActorName"].Value} > {translatedText}";
+	                }
+	            });
+	
+	        await Task.WhenAll(translatorTasks).ConfigureAwait(false);
+	
+	        return await nextSend();
+	    });
+	}
+	```
 
 This code listens to all activities sent by the bot, filters out the Message activities and then translates the text within the Message activities using the Translator Text API. 
 
 3. Now we just need to register the middleware with the bot. In *Startup.cs* replace the line `// TODO Trial 2: Register middleware here.` with the following code-snippet:
 
-```csharp
-options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
-```
+	```csharp
+	options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
+	```
 
 ## Run the game
 
 1. Open `appsettings.Development.json` and enable the Translator. You can also specify the target language here.
 
-```json
-  "Translator": {
-    "Enabled": true,
-    "Language": "nl"
-  },
-```
+	```json
+	  "Translator": {
+	    "Enabled": true,
+	    "Language": "nl"
+	  },
+	```
 
 2. Select **Debug | Start Debugging**.
 
