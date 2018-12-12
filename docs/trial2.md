@@ -29,6 +29,7 @@ if (service.Name == "Translator")
 ```csharp
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000;
@@ -72,7 +73,15 @@ if (_options.Enabled)
             .Select(a => a.AsMessageActivity())
             .Select(async activity =>
             {
-                activity.Text = await _client.TranslateAsync(activity.Text, _options.Language).ConfigureAwait(false);
+                // The activity also contains the name of the actor, we don't want to translate those.
+                var match = Regex.Match(activity.Text, "(?<ActorName>.*?) > (?<Text>.*)");
+                if (match.Success)
+                {
+                    var translatedText = await _client.TranslateAsync(match.Groups["Text"].Value, _options.Language)
+                        .ConfigureAwait(false);
+
+                    activity.Text = $"{match.Groups["ActorName"].Value} > {translatedText}";
+                }
             });
 
         await Task.WhenAll(translatorTasks).ConfigureAwait(false);

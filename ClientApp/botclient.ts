@@ -30,16 +30,12 @@ export class BotClient {
 
                 var activity = <any>x;
 
-                if (!this.conversationId) {
-                    this.conversationId = activity.conversation.id;
-                    console.log("Connected to 🤖")
-                }
-
-                console.log("🤖 " + this.activityToString(activity));
-                
                 if (activity.type == "message")
                 {
-                    if (activity.text == "Which game do you want to play?") {
+                    console.log("🤖 " + this.activityToString(activity));
+
+                    if (!this.conversationId) {
+                        this.conversationId = activity.conversation.id;
                         this.sendMessageToBot(gameInfo.gameName);
                     } else {
                         await onMessage(activity);
