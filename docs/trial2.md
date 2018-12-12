@@ -12,7 +12,7 @@ In this lab you'll learn how to use middleware to intercept messages sent from t
 msbot connect generic --name Translator --url "no-url" --keys "{\"key\":\"<API key>\"}"
 ```
 
-3. In *BotServices.cs* find the line `// TODO Trial 2: Read translator key from configuration.` and add the following code to read the API key from the .bot file:
+3. In *BotServices.cs* replace the line `// TODO Trial 2: Read translator key from configuration.` with the following code-snippet to read the API key from the .bot file:
 
 ```csharp
 if (service.Name == "Translator")
@@ -27,6 +27,13 @@ if (service.Name == "Translator")
 1. In the *Translator* folder, add a new *TranslatorMiddleware.cs* file with the following class:
 
 ```csharp
+using System.Threading;
+using System.Threading.Tasks;
+using GameATron4000;
+using GameATron4000.Configuration;
+using GameATron4000.Translator;
+using Microsoft.Bot.Builder;
+
 public class TranslatorMiddleware : IMiddleware
 {
     private readonly TranslatorOptions _options;
