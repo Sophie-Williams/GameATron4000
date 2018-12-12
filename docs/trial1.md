@@ -88,7 +88,9 @@ everything stored in the West US data center too.
 az configure --defaults group=GameATron4000RG location=westus
 ```
 
-3. Create the registration using the ngrok public forwarding HTTPS URL. Note that ```/api/messages``` must be appended to get the full endpoint URL.
+3. Create the registration using the ngrok public forwarding HTTPS URL. Note that ```/api/messages``` must be appended to get the full endpoint URL. 
+
+**Make sure you use a unique name for the registration (in stead of 'GameATron4000Reg') and use this name throughout the rest of the trial.**
 
 ```
 az bot create --kind registration --name GameATron4000Reg --appid <MSA app ID> --password <MSA password> --endpoint <ngrok HTTPS URL>/api/messages --sku F0

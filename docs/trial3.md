@@ -140,7 +140,7 @@ In order to make using the generated LUISModel class as easy as possible, you wi
 
 Execute the following steps to add the extension-method:
 
-1. Add a new file called `LUISMOdel.Extensions.cs` to the root of the project.
+1. Add a new file called `LUISModel.Extensions.cs` to the root of the project.
 
 2. Paste the following code-snippet into the file:
 	```csharp
