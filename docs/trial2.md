@@ -57,7 +57,7 @@ public class TranslatorMiddleware : IMiddleware
 
 The `IMiddleware` interface declares an `OnTurnAsync` method where we can place our code to intercept the bot activities.  
 
-2. Add the following code to the `OnTurnAsync` method.
+2. Replace the line `// TODO Insert code to translate sent message activities here.` in the `OnTurnAsync` method with the following code-snippet:
 
 ```csharp
 if (_options.Enabled)
