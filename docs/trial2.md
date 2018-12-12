@@ -84,7 +84,7 @@ if (_options.Enabled)
 
 This code listens to all activities sent by the bot, filters out the Message activities and then translates the text within the Message activities using the Translator Text API. 
 
-3. In *Startup.cs* replace the line `// TODO Trial 2: Register middleware here.` with the following code-snippet:
+3. Now we just need to register the middleware with the bot. In *Startup.cs* replace the line `// TODO Trial 2: Register middleware here.` with the following code-snippet:
 
 ```csharp
 options.Middleware.Add(new TranslatorMiddleware(translatorOptions, connectedServices));
