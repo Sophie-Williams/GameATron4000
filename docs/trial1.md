@@ -108,7 +108,7 @@ Now you will add additional configuration information for the Azure Bot Service 
 
 This time, we'll use the [MSBot](https://github.com/Microsoft/botbuilder-tools/blob/master/packages/MSBot/README.md) tool to add the information to the file. Run the tool from the Game-A-Tron 4000™ project folder. It will automatically find and update your .bot file:
 
-1. Add the service configuration to connect to the Azure Bot Service:
+1. Add the service configuration to connect to the Azure Bot Service (you can get the subscription id by running `az account show`):
 
 ```
 msbot connect bot --serviceName GameATron4000Reg --tenantId <Tenant>.onmicrosoft.com --subscriptionId <Azure Subscription ID> --resourceGroup GameATron4000RG --appId <MSA app ID> --appPassword <MSA password> --endpoint <ngrok HTTPS URL>/api/messages
