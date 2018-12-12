@@ -18,7 +18,7 @@ In this lab you'll learn how to use the emulator to test a bot. You will also le
 
 	![New bot configuration](img/new-bot-config.png)
 
-7. Click **Save and connect**, name your bot file *GameATron4000.bot*, and save the file in the Game-A-Tron 4000™ project folder.
+7. Click **Save and connect**, name your bot file *GameATron4000.bot*. **Make sure you save the file in the Game-A-Tron 4000™ project folder!**
 
 8. The emulator will connect to the bot. Choose *ReturnOfTheBodySnatchers* as the game you want to play. You can now enter messages like *look at newspaper* to play the game.
 
